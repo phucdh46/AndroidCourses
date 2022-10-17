@@ -14,14 +14,16 @@
         tools:targetApi="31">
         <activity
             android:name=".OrderActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".MainAcivity">
             <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainAcivity" />
         </activity>
         <activity
             android:name=".MainAcivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
