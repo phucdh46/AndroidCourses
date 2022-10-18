@@ -13,6 +13,14 @@
         android:theme="@style/Theme.ClickableImages"
         tools:targetApi="31">
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainAcivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainAcivity" />
+        </activity>
+        <activity
             android:name=".OrderActivity"
             android:exported="false"
             android:parentActivityName=".MainAcivity">

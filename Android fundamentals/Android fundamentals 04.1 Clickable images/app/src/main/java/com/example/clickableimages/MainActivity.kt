@@ -29,6 +29,8 @@ class MainAcivity : AppCompatActivity() {
             intent.putExtra(EXTRA_MESSAGE, mOrderMessage)
             startActivity(intent)
         }
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -38,7 +40,10 @@ class MainAcivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_settings -> displayToast(getString(R.string.action_order_message))
+            R.id.action_settings -> {
+                val intent = Intent(this@MainAcivity, SettingsActivity::class.java)
+                startActivity(intent)
+            }
             R.id.action_contact -> displayToast(getString(R.string.action_contact_message))
             R.id.action_favorites -> displayToast(getString(R.string.action_favorites_message))
             R.id.action_status -> displayToast(getString(R.string.action_status_message))
