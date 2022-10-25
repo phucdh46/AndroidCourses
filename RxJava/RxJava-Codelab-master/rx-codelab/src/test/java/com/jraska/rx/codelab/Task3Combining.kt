@@ -3,8 +3,11 @@ package com.jraska.rx.codelab
 import com.jraska.rx.codelab.http.GitHubConverter
 import com.jraska.rx.codelab.http.HttpModule
 import com.jraska.rx.codelab.http.UserCache
+import io.reactivex.Observable
+import io.reactivex.functions.BiFunction
 import org.junit.Before
 import org.junit.Test
+import java.util.concurrent.TimeUnit
 
 class Task3Combining {
   private val gitHubApi = HttpModule.mockedGitHubApi()
@@ -51,6 +54,53 @@ class Task3Combining {
         GitHubConverter::convert
       )
       .subscribe { println(it) }
+
+  }
+
+  @Test
+  fun testCombineLatest() {
+    val observable1 = Observable.interval(400, TimeUnit.MILLISECONDS)
+    val observable2 = Observable.interval(250, TimeUnit.MILLISECONDS)
+
+    Observable.combineLatest(
+      observable1,
+      observable2,
+      object : BiFunction<Long, Long, String> {
+        override fun apply(t1: Long, t2: Long): String {
+          return "observable1 value: $t1 , observable2 value: $t2"
+        }
+      })
+      .take(5)
+      .subscribe { println(it) }
+
+  }
+
+  @Test
+  fun testSwitchOnNext() {
+    val timeIntervals = Observable.interval(1, TimeUnit.SECONDS)
+      .map { ticks ->
+        Observable.interval(100, TimeUnit.MILLISECONDS)
+          .map { innerInterval -> "outer: $ticks - inner: $innerInterval" }
+      }
+
+    Observable.switchOnNext(timeIntervals)
+      .subscribe { println(it) }
+
+  }
+
+  @Test
+  fun testSwitchOnNext2() {
+    Observable.switchOnNext(
+      Observable.interval(100, TimeUnit.MILLISECONDS)
+        .map { i: Long? ->
+          Observable.interval(30, TimeUnit.MILLISECONDS)
+            .map { i2: Long? -> i }
+        }
+    )
+      .take(9)
+      .subscribe { x: Long? -> println(x) }
+
+    //0 0 0 1 1 1 2 2 2
 
   }
 
