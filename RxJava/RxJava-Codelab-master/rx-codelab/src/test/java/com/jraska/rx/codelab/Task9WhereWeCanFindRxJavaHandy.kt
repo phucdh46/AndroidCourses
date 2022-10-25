@@ -6,6 +6,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.After
 import org.junit.Test
+import java.util.concurrent.TimeUnit
 
 class Task9WhereWeCanFindRxJavaHandy {
   private val httpBinApi = HttpModule.httpBinApi()
@@ -18,15 +19,17 @@ class Task9WhereWeCanFindRxJavaHandy {
       .subscribeOn(Schedulers.io())
 
     // TODO: Perform only one request for both following subscribes - share()
+    request.share()
     request.subscribe()
     request.subscribe()
 
     HttpModule.awaitNetworkRequests()
 
     // TODO: Make this subscribe receive cached value = cache()
-    request.subscribe()
+    request.cache().subscribe()
 
     // TODO: Now refresh the existing observable - use repeatWhen(subject) before calling cache()
+    request.repeatWhen { refreshSignal }
     refreshSignal.onNext(Any())
   }
 
@@ -37,6 +40,9 @@ class Task9WhereWeCanFindRxJavaHandy {
 
     // TODO: Implement polling on the request for one second - repeat(), takeUntil()
     // TODO: Add 100ms delay between requests - repeatWhen(), delay()
+    request.repeatWhen { o -> o.delay(100, TimeUnit.MILLISECONDS) }
+      .takeUntil { System.currentTimeMillis() > endOfPolling }
+      .subscribe(::println)
   }
 
   @Test
@@ -49,6 +55,7 @@ class Task9WhereWeCanFindRxJavaHandy {
 
     // TODO: requestWithCache has a bug! In rare case when the network request happens to be faster than the cache, ...
     // TODO: ...the last emission will be cached value. Fix this with ambWith
+    request.ambWith { requestWithCache }.cache()
 
     requestWithCache.subscribe { println(it) }
   }
