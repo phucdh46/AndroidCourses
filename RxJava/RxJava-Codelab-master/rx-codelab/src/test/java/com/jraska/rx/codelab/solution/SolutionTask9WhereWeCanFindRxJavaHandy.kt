@@ -2,6 +2,8 @@ package com.jraska.rx.codelab.solution
 
 import com.jraska.rx.codelab.http.HttpModule
 import com.jraska.rx.codelab.http.RequestInfoCache
+import io.reactivex.Observable
+import io.reactivex.parallel.ParallelFlowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.After
@@ -51,6 +53,8 @@ class SolutionTask9WhereWeCanFindRxJavaHandy {
 
     val observableWithCache = request.ambWith(requestWithCache)
     observableWithCache.subscribe { println(it) }
+
+
   }
 
   @After
