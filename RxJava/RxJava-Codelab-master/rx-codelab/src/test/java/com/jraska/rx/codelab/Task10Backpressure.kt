@@ -43,6 +43,12 @@ class Task10Backpressure {
     rxServer.allLogsHot().onBackpressureBuffer(1).subscribe(slowLogConsumer())
   }
 
+  @Test
+  fun test(){
+    rxServer.allLogsHot().onBackpressureBuffer().subscribe(reallySlowLogConsumer())
+    rxServer.allLogsHot().onBackpressureBuffer().subscribe(reallySlowLogConsumer())
+  }
+
   private fun slowLogConsumer(): Consumer<Log> {
     return Consumer { log ->
       Thread.sleep(25)

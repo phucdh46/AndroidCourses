@@ -1,4 +1,7 @@
 package com.example.materialme
 
-class Sport {
-}
+data class Sport(
+    val title: String,
+    val info: String,
+    val imageResource: Int
+)
