@@ -3,7 +3,6 @@ package com.example.materialme
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import com.example.materialme.databinding.ActivityDetailBinding
 
 class DetailActivity : AppCompatActivity() {
