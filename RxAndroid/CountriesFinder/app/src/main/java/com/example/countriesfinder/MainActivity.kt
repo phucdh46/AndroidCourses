@@ -4,22 +4,30 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Menu
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.countriesfinder.data.Country
 import com.example.countriesfinder.data.CountryDatabase
 import com.example.countriesfinder.databinding.ActivityMainBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.ObservableSource
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
+    companion object{
+        const val TAG = "DHP"
+    }
     private lateinit var binding: ActivityMainBinding
     private val viewModel: CountryViewModel by viewModels {
         CountryViewModelFactory(
@@ -27,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
     private lateinit var disposable: Disposable
-
+    var adapter: CountryAdapter? =null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -36,7 +44,9 @@ class MainActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
         binding.vm = viewModel
 
-        val adapter = CountryAdapter { country ->
+        setSupportActionBar(binding.toolBar)
+
+         adapter = CountryAdapter { country ->
             Toast.makeText(this@MainActivity, country.name, Toast.LENGTH_SHORT).show()
         }
         binding.rv.adapter = adapter
@@ -62,10 +72,38 @@ class MainActivity : AppCompatActivity() {
             .subscribe {
                 Log.d("DHP", "list: ${it.size.toString()} -- ${it.toString()}")
                 hideProgress()
-                adapter.submitList(it)
+                adapter!!.submitList(it)
 
             }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu,menu)
+        val searchView = menu?.findItem(R.id.search)?.actionView as SearchView
+
+        RxSearchObserve.fromView(searchView)
+            .filter { it.isNotEmpty() }
+            .map { it.lowercase(Locale.ROOT) }
+            .observeOn(Schedulers.io())
+            //.map { viewModel.search("%$it%") }
+            /*.flatMap{ i->
+                Observable.create<List<Country>> { e->
+                    e.onNext(viewModel.search("%$i%"))
+                }
+            }*/
+            .switchMap { Observable.create<List<Country>> {e->
+                e.onNext(viewModel.search("%$it%"))
+            } }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { v-> adapter!!.submitList(v)},
+                {e -> Log.d(TAG,"Error: ${e.message}")},
+                { Log.d(TAG,"Done!") }
+            )
+
+        return true
     }
 
     override fun onStop() {
